@@ -3,10 +3,11 @@ package com.green_solar.green_solar_back.service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.green_solar.green_solar_back.dto.User.Request.UserLoginRequestDTO;
-import com.green_solar.green_solar_back.dto.User.Request.UserRegisterRequestDTO;
-import com.green_solar.green_solar_back.dto.User.Response.UserAuthResponseDTO;
-import com.green_solar.green_solar_back.dto.User.Response.UserInfoResponseDTO;
+import com.green_solar.green_solar_back.dto.Auth.Request.UserLoginRequestDTO;
+import com.green_solar.green_solar_back.dto.Auth.Request.UserRegisterRequestDTO;
+import com.green_solar.green_solar_back.dto.Auth.Response.UserAuthResponseDTO;
+import com.green_solar.green_solar_back.dto.Auth.Response.UserInfoResponseDTO;
+import com.green_solar.green_solar_back.exception.EmailAlreadyExistsException;
 import com.green_solar.green_solar_back.model.User;
 import com.green_solar.green_solar_back.repository.UserRepository;
 
@@ -18,8 +19,13 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public UserAuthResponseDTO register(UserRegisterRequestDTO dto) {
+        if(userRepository.existsByEmail(dto.email())) {
+            throw new EmailAlreadyExistsException("Email already exists");
+        }
+
         String hashedPassword = passwordEncoder.encode(dto.password());
 
         User user = User.builder()
@@ -28,11 +34,14 @@ public class AuthService {
                 .username(dto.username())
                 .build();
 
+        
         userRepository.save(user);
 
+        String token = jwtService.generateToken(user.getId());
+        
         return new UserAuthResponseDTO(
             user.getId(),
-            null,
+            token,
             user.getUsername(),
             user.getImgUrl()
         );
@@ -46,9 +55,11 @@ public class AuthService {
             throw new RuntimeException("Invalid email or password");
         }
 
+        String token = jwtService.generateToken(user.getId());
+        
         return new UserAuthResponseDTO(
             user.getId(),
-            null,
+            token,
             user.getUsername(),
             user.getImgUrl()
         );

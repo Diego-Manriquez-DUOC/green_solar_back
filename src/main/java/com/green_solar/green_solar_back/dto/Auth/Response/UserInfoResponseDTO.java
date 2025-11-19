@@ -1,4 +1,4 @@
-package com.green_solar.green_solar_back.dto.User.Response;
+package com.green_solar.green_solar_back.dto.Auth.Response;
 
 public record UserInfoResponseDTO(
     String username,

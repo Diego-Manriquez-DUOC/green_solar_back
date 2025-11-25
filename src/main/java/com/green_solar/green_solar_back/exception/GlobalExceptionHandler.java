@@ -20,8 +20,8 @@ public class GlobalExceptionHandler {
                 .body(Map.of("error", "EMAIL_EXISTS", "message", "Email already exists."));
     }
 
-    @ExceptionHandler(JsonParseException.class)
-    public ResponseEntity<Map<String, String>> handleParseError(JsonParseException e) {
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, String>> handleException(Exception e) {
         log.error("Runtime exception: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(Map.of("error", "BAD_REQUEST", "message", "Unexpected error."));

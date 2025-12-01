@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.green_solar.green_solar_back.dto.Auth.Request.UserLoginRequestDTO;
 import com.green_solar.green_solar_back.dto.Auth.Request.UserRegisterRequestDTO;
+import com.green_solar.green_solar_back.dto.Auth.Request.UserUpdateRequestDTO;
 import com.green_solar.green_solar_back.dto.Auth.Response.UserAuthResponseDTO;
 import com.green_solar.green_solar_back.dto.Auth.Response.UserInfoResponseDTO;
 import com.green_solar.green_solar_back.exception.EmailAlreadyExistsException;
@@ -74,6 +75,30 @@ public class AuthService {
             user.getRole(),
             user.getEmail(),
             user.getImg_url()
+        );
+    }
+
+    public UserInfoResponseDTO updateUserInfo(Long userId, UserUpdateRequestDTO dto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (dto.username() != null) user.setUsername(dto.username());
+        if (dto.email() != null) {
+            if (userRepository.existsByEmail(dto.email()) && !user.getEmail().equals(dto.email())) {
+                throw new EmailAlreadyExistsException("Email already exists");
+            }
+            user.setEmail(dto.email());
+        }
+        if (dto.password() != null) user.setPassword(passwordEncoder.encode(dto.password()));
+        if (dto.imgUrl() != null) user.setImg_url(dto.imgUrl());
+
+        User updatedUser = userRepository.save(user);
+        
+        return new UserInfoResponseDTO(
+            updatedUser.getUsername(),
+            updatedUser.getRole(),
+            updatedUser.getEmail(),
+            updatedUser.getImg_url()
         );
     }
 

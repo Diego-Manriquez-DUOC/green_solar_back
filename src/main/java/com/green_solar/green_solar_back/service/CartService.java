@@ -7,13 +7,18 @@ import org.springframework.stereotype.Service;
 import com.green_solar.green_solar_back.dto.Cart.Request.CartCreateRequestDTO;
 import com.green_solar.green_solar_back.dto.Cart.Request.CartUpdateRequestDTO;
 import com.green_solar.green_solar_back.dto.Cart.Response.CartResponseDTO;
+import com.green_solar.green_solar_back.dto.Cart.Response.CartItemResponseDTO;
 import com.green_solar.green_solar_back.dto.Product.Response.ProductResponseDTO;
 import com.green_solar.green_solar_back.model.Cart;
+import com.green_solar.green_solar_back.model.CartItem;
 import com.green_solar.green_solar_back.model.Product;
 import com.green_solar.green_solar_back.model.User;
 import com.green_solar.green_solar_back.repository.CartRepository;
 import com.green_solar.green_solar_back.repository.ProductRepository;
 import com.green_solar.green_solar_back.repository.UserRepository;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,16 +34,19 @@ public class CartService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        List<Product> products = productRepository.findAllById(dto.productIds());
-
         Cart cart = Cart.builder()
                 .name(dto.name())
                 .description(dto.description())
                 .user(user)
-                .products(products)
+                .cartItems(new ArrayList<>())
                 .build();
 
         Cart savedCart = cartRepository.save(cart);
+        
+        if (dto.productIds() != null && !dto.productIds().isEmpty()) {
+            updateCartItems(savedCart, dto.productIds());
+        }
+        
         return toResponseDTO(savedCart);
     }
 
@@ -59,8 +67,7 @@ public class CartService {
         if (dto.name() != null) cart.setName(dto.name());
         if (dto.description() != null) cart.setDescription(dto.description());
         if (dto.productIds() != null) {
-            List<Product> products = productRepository.findAllById(dto.productIds());
-            cart.setProducts(products);
+            updateCartItems(cart, dto.productIds());
         }
 
         Cart updatedCart = cartRepository.save(cart);
@@ -89,9 +96,31 @@ public class CartService {
         cartRepository.delete(cart);
     }
 
+    private void updateCartItems(Cart cart, List<Long> productIds) {
+        cart.getCartItems().clear();
+        
+        Map<Long, Long> productCounts = productIds.stream()
+                .collect(Collectors.groupingBy(id -> id, Collectors.counting()));
+        
+        for (Map.Entry<Long, Long> entry : productCounts.entrySet()) {
+            Product product = productRepository.findById(entry.getKey())
+                    .orElseThrow(() -> new RuntimeException("Product not found: " + entry.getKey()));
+            
+            CartItem cartItem = CartItem.builder()
+                    .cart(cart)
+                    .product(product)
+                    .quantity(entry.getValue().intValue())
+                    .build();
+            
+            cart.getCartItems().add(cartItem);
+        }
+        
+        cartRepository.save(cart);
+    }
+
     private CartResponseDTO toResponseDTO(Cart cart) {
-        List<ProductResponseDTO> productDTOs = cart.getProducts().stream()
-                .map(this::toProductResponseDTO)
+        List<CartItemResponseDTO> itemDTOs = cart.getCartItems().stream()
+                .map(this::toCartItemResponseDTO)
                 .toList();
 
         return new CartResponseDTO(
@@ -99,20 +128,26 @@ public class CartService {
             cart.getName(),
             cart.getDescription(),
             cart.getUser().getId(),
-            productDTOs
+            itemDTOs
         );
     }
 
-    private ProductResponseDTO toProductResponseDTO(Product product) {
-        return new ProductResponseDTO(
-            product.getId(),
-            product.getName(),
-            product.getDesc(),
-            product.getPrice(),
-            product.getCategory(),
-            product.getStorageKW(),
-            product.getProductionKW(),
-            product.getImgUrl()
+    private CartItemResponseDTO toCartItemResponseDTO(CartItem cartItem) {
+        ProductResponseDTO productDTO = new ProductResponseDTO(
+            cartItem.getProduct().getId(),
+            cartItem.getProduct().getName(),
+            cartItem.getProduct().getDesc(),
+            cartItem.getProduct().getPrice(),
+            cartItem.getProduct().getCategory(),
+            cartItem.getProduct().getStorageKW(),
+            cartItem.getProduct().getProductionKW(),
+            cartItem.getProduct().getImgUrl()
+        );
+        
+        return new CartItemResponseDTO(
+            cartItem.getId(),
+            productDTO,
+            cartItem.getQuantity()
         );
     }
 }

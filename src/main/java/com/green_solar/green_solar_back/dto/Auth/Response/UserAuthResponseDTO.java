@@ -4,5 +4,5 @@ public record UserAuthResponseDTO(
     Long id,
     String token,
     String username,
-    String imgUrl
+    String img_url
 ) {}

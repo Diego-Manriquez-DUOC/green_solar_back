@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,11 +33,19 @@ public class Product {
 
     private String desc;
 
-    @NotBlank
+    @NotNull
     @Column(nullable = false)
     private Integer price;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ProductCategory category;
+
+    @NotNull
+    @Column(nullable = false)
+    private Integer storageKW;
+
+    @NotNull
+    @Column(nullable = false)
+    private Integer productionKW;
 }

@@ -48,4 +48,6 @@ public class Product {
     @NotNull
     @Column(nullable = false)
     private Integer productionKW;
+
+    private String imgUrl;
 }

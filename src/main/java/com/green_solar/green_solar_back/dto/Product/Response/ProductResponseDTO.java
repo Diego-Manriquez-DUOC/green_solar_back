@@ -9,5 +9,6 @@ public record ProductResponseDTO(
     Integer price,
     ProductCategory category,
     Integer storageKW,
-    Integer productionKW
+    Integer productionKW,
+    String imgUrl
 ) {}

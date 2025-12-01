@@ -111,7 +111,8 @@ public class CartService {
             product.getPrice(),
             product.getCategory(),
             product.getStorageKW(),
-            product.getProductionKW()
+            product.getProductionKW(),
+            product.getImgUrl()
         );
     }
 }

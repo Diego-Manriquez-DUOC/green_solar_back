@@ -40,6 +40,7 @@ public class ProductService {
                 .category(dto.category())
                 .storageKW(dto.storageKW())
                 .productionKW(dto.productionKW())
+                .imgUrl(dto.imgUrl())
                 .build();
         
         Product savedProduct = productRepository.save(product);
@@ -56,6 +57,7 @@ public class ProductService {
         if (dto.category() != null) product.setCategory(dto.category());
         if (dto.storageKW() != null) product.setStorageKW(dto.storageKW());
         if (dto.productionKW() != null) product.setProductionKW(dto.productionKW());
+        if (dto.imgUrl() != null) product.setImgUrl(dto.imgUrl());
         
         Product updatedProduct = productRepository.save(product);
         return toResponseDTO(updatedProduct);
@@ -104,7 +106,8 @@ public class ProductService {
             product.getPrice(),
             product.getCategory(),
             product.getStorageKW(),
-            product.getProductionKW()
+            product.getProductionKW(),
+            product.getImgUrl()
         );
     }
 }

@@ -11,5 +11,6 @@ public record ProductCreateRequestDTO(
     @NotNull Integer price,
     @NotNull ProductCategory category,
     @NotNull Integer storageKW,
-    @NotNull Integer productionKW
+    @NotNull Integer productionKW,
+    String imgUrl
 ) {}

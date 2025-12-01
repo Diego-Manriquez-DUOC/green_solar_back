@@ -27,6 +27,7 @@ public class UserController {
         
         UserInfoResponseDTO response = new UserInfoResponseDTO(
             user.getUsername(),
+            user.getRole(),
             user.getEmail(),
             user.getImg_url()
         );

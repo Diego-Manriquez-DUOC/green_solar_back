@@ -60,11 +60,6 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/category/{category}")
-    public ResponseEntity<List<ProductResponseDTO>> getProductsByCategory(@PathVariable ProductCategory category) {
-        return ResponseEntity.ok(productService.getProductsByCategory(category));
-    }
-
     @GetMapping("/categories")
     public ResponseEntity<ProductCategory[]> getAllCategories() {
         return ResponseEntity.ok(productService.getAllCategories());

@@ -25,7 +25,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private Long id;
+    private Long user_id;
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
@@ -45,5 +45,5 @@ public class User {
     @Column(nullable=false)
     private String username;
 
-    private String imgUrl;
+    private String img_url;
 }

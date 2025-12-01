@@ -28,7 +28,7 @@ public class UserController {
         UserInfoResponseDTO response = new UserInfoResponseDTO(
             user.getUsername(),
             user.getEmail(),
-            user.getImgUrl()
+            user.getImg_url()
         );
         
         return ResponseEntity.ok(response);
